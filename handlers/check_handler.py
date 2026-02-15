@@ -7,6 +7,7 @@ from core.security import SecurityService
 from .base_handler import BaseHandler
 import asyncio
 from pathlib import Path
+from datetime import datetime
 
 
 class CheckHandler(BaseHandler):
@@ -34,46 +35,34 @@ class CheckHandler(BaseHandler):
 
         scope = context.args[0].lower()
         if not SecurityService.validate_scope(scope, self.allowed_scopes):
-            scopes_list = ", ".join([f"`{s}`" for s in self.allowed_scopes])
+            scopes_list = ", ".join(self.allowed_scopes)
             await update.message.reply_text(
                 f"Unavailable scope `{scope}`\nAvailable scopes: {scopes_list}"
             )
             return
 
-        await update.message.reply_text(f"Starting check for the scope `{scope}`...")
+        msg = await update.message.reply_text(f"Starting check for the scope `{scope}`...")
 
         log_path = await self.log_repository.create_log_file(scope, is_check=True)
-        chat_id = update.effective_chat.id
+        log_filename = Path(log_path).name
 
         try:
-            summary_lines = []
-            last_sent = 0
+            success, summary, _ = await self.docker_service.run_watchtower(
+                scope=scope,
+                log_path=log_path,
+                is_check=True
+            )
 
-            async for line in self.docker_service.run_watchtower(scope, is_check=True):
-                await self.log_repository.save_line(log_path, line)
-                summary_lines.append(line)
-
-                if (len(summary_lines) - last_sent >= 15) or any(
-                        kw in line.lower() for kw in ['pulling', 'checking', 'found', 'error', 'failed']
-                ):
-                    preview = '\n'.join(summary_lines[-10:])
-                    await self.telegram_service.send_chunked(
-                        chat_id,
-                        f"Checking scope `{scope}`:\n```\n{preview}\n```"
-                    )
-                    last_sent = len(summary_lines)
-
-            summary = '\n'.join(summary_lines[-30:])
-            await self.telegram_service.send_chunked(
-                chat_id,
-                f"Check for the scope `{scope}` has been finished.\n"
-                f"Log: `{Path(log_path).name}`\n\n"
-                f"```\n{summary[-3000:]}\n```"
+            status_emoji = "✅" if success else "❌"
+            await msg.edit_text(
+                f"{status_emoji} Check '{scope}' is completed:\n"
+                f"{summary}\n\n"
+                f"Log: {log_filename}"
             )
 
         except Exception as e:
-            error_msg = str(e)
-            await self.telegram_service.send_chunked(
-                chat_id,
-                f"Error while checking the scope `{scope}`:\n```\n{error_msg}\n```"
+            error_msg = str(e)[:500]  # обрезать длинные ошибки
+            await msg.edit_text(
+                f"Error while checking the scope '{scope}':\n{error_msg}\n\n"
+                f"Log: {log_filename}"
             )

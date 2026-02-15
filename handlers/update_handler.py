@@ -27,47 +27,34 @@ class UpdateHandler(BaseHandler):
 
         scope = context.args[0].lower()
         if not SecurityService.validate_scope(scope, self.allowed_scopes):
-            scopes_list = ", ".join([f"`{s}`" for s in self.allowed_scopes])
+            scopes_list = ", ".join(self.allowed_scopes)
             await update.message.reply_text(
                 f"Unavailable scope `{scope}`\nAvailable scopes: {scopes_list}"
             )
             return
 
-        await update.message.reply_text(f"Processing update for the scope `{scope}`...")
+        msg = await update.message.reply_text(f"Processing update for the scope `{scope}`...")
 
         log_path = await self.log_repository.create_log_file(scope, is_check=False)
-        chat_id = update.effective_chat.id
+        log_filename = Path(log_path).name
 
         try:
-            summary_lines = []
-            last_sent = 0
+            success, summary, updated_count = await self.docker_service.run_watchtower(
+                scope=scope,
+                log_path=log_path,
+                is_check=False
+            )
 
-            async for line in self.docker_service.run_watchtower(scope, is_check=False):
-                await self.log_repository.save_line(log_path, line)
-                summary_lines.append(line)
-
-                if (len(summary_lines) - last_sent >= 15) or any(
-                        kw in line.lower() for kw in
-                        ['pulling', 'stopping', 'creating', 'removing', 'error', 'failed', 'updated']
-                ):
-                    preview = '\n'.join(summary_lines[-10:])
-                    await self.telegram_service.send_chunked(
-                        chat_id,
-                        f"Updating scope `{scope}`:\n```\n{preview}\n```"
-                    )
-                    last_sent = len(summary_lines)
-
-            summary = '\n'.join(summary_lines[-30:])
-            await self.telegram_service.send_chunked(
-                chat_id,
-                f"Scope `{scope}` updating has been successfully completed\n\n"
-                f"Лог: `{Path(log_path).name}`\n\n"
-                f"```\n{summary[-3000:]}\n```"
+            status_emoji = "✅" if success else "❌"
+            await msg.edit_text(
+                f"{status_emoji} Update '{scope}' is finished:\n"
+                f"{summary}\n\n"
+                f"Log: {log_filename}"
             )
 
         except Exception as e:
-            error_msg = str(e)
-            await self.telegram_service.send_chunked(
-                chat_id,
-                f"Error while updating scope `{scope}`:\n```\n{error_msg}\n```"
+            error_msg = str(e)[:500]
+            await msg.edit_text(
+                f"Error while updating scope '{scope}':\n{error_msg}\n\n"
+                f"Log: {log_filename}"
             )

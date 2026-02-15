@@ -38,14 +38,15 @@ services:
     container_name: nasquik-watchtower-bot
     restart: unless-stopped
     environment:
-      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
-      - AUTHORIZED_CHAT_IDS=${AUTHORIZED_CHAT_IDS}
-      - ALLOWED_SCOPES=${ALLOWED_SCOPES}
+      - TELEGRAM_TOKEN=8400087115:AAGSdIji5t6htxNt5zj5EBwaYAjXXqf3zCk
+      - AUTHORIZED_CHAT_IDS=61581878,51374704
+      - ALLOWED_SCOPES=diun,jellyfin,komga,navidrome,photoprism,npm,qbittorrent,watchtower
       - TZ=Europe/Moscow
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /opt/watchtower-bot/logs:/app/logs  # ← АБСОЛЮТНЫЙ ПУТЬ НА ХОСТЕ
-    user: "1000:1000"  # ← UID:GID вашего пользователя
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/watchtower-bot/logs:/app/logs
+      - /usr/bin/docker:/usr/bin/docker:ro
+    user: "1000:994"
 ```
 При обновлении кода:
 ```

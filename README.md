@@ -20,20 +20,36 @@
    ```
 2. Скопировать ВСЕ файлы проекта (scp or git clone)
 
-### Шаг 2. Создание стека в Portainer (делается ОДИН раз)
+### Шаг 2. Сбока образа на сервере
 
-1. Откройте Portainer → Stacks → Add stack 
-2. Заполните поля:
-   1. **Name:** watchtower-bot 
-   2. **Build method:** Build new image 
-   3. **Dockerfile:** path Dockerfile (относительный путь от контекста)
-   4. **Context:** /opt/watchtower-bot (путь к директории с проектом на сервере)
-   5. **Environment variables:**
-      ```
-      Вставьте ваши секреты: TELEGRAM_TOKEN=... AUTHORIZED_CHAT_IDS=... ALLOWED_SCOPES=qbittorrent,jellyfin,...
-      ```
-3. Нажмите Deploy the stack. Portainer автоматически:
-   1. Прочитает Dockerfile 
-   2. Соберёт образ (docker build)
-   3. Запустит контейнер с вашими переменными окружения 
-   4. Смонтирует тома (/var/run/docker.sock, ./logs)
+```
+cd /opt/watchtower-bot
+docker build -t nasquik-watchtower-bot:latest .
+```
+
+### Шаг 3. Создать стек через Portainer (Web editor)
+
+docker-compose.yml для стека
+```
+version: '3.8'
+services:
+  nasquik-watchtower-bot:
+    image: nasquik-watchtower-bot:latest
+    container_name: nasquik-watchtower-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - AUTHORIZED_CHAT_IDS=${AUTHORIZED_CHAT_IDS}
+      - ALLOWED_SCOPES=${ALLOWED_SCOPES}
+      - TZ=Europe/Moscow
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/watchtower-bot/logs:/app/logs  # ← АБСОЛЮТНЫЙ ПУТЬ НА ХОСТЕ
+    user: "1000:1000"  # ← UID:GID вашего пользователя
+```
+При обновлении кода:
+```
+cd /opt/nasquik-watchtower-bot
+docker build -t nasquik-watchtower-bot:latest . --no-cache
+```
+В Portainer: Stacks → nasquik-watchtower-bot → Recreate

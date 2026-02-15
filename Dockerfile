@@ -24,7 +24,14 @@ USER root
 COPY --chown=botuser:botgroup . .
 RUN chown -R botuser:botgroup /app
 
+COPY --chown=botuser:botgroup entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+RUN chown -R botuser:botgroup /app
+
 USER botuser
+
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD python -c "import sys; sys.exit(0)" || exit 1

@@ -10,8 +10,9 @@ class ScopesHandler(BaseHandler):
         super().__init__(authorized_chat_ids)
         self.allowed_scopes = allowed_scopes
 
-    @BaseHandler.auth_required
     async def handle(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        await self.check_authorization(update)
+
         if not self.allowed_scopes:
             await update.message.reply_text("There are no allowed scopes for update")
             return

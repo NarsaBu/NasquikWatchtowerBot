@@ -9,8 +9,9 @@ class StartHandler(BaseHandler):
         super().__init__(authorized_chat_ids)
         self.allowed_scopes = allowed_scopes
 
-    @BaseHandler.auth_required
     async def handle(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        await self.check_authorization(update)
+
         help_text = (
                 "🛡️ *Watchtower Control Bot*\n\n"
                 "Available commands:\n"

@@ -25,8 +25,9 @@ class CheckHandler(BaseHandler):
         self.log_repository = log_repository
         self.allowed_scopes = allowed_scopes
 
-    @BaseHandler.auth_required
     async def handle(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        await self.check_authorization(update)
+
         if not context.args:
             await update.message.reply_text("Select scope: `/check qbittorrent`", parse_mode='MarkdownV2')
             return

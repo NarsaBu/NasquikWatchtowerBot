@@ -11,8 +11,9 @@ class LogsHandler(BaseHandler):
         super().__init__(authorized_chat_ids)
         self.log_repository = log_repository
 
-    @BaseHandler.auth_required
     async def handle(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        await self.check_authorization(update)
+
         logs = self.log_repository.get_recent_logs(limit=5)
 
         if not logs:

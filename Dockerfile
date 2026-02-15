@@ -14,8 +14,8 @@ RUN groupadd -g 1000 botgroup && \
 
 COPY --chown=botuser:botgroup requirements.txt .
 USER botuser
+ENV PATH="/home/botuser/.local/bin:/usr/local/bin:/usr/bin:/bin:${PATH}"
 RUN pip install --user --no-cache-dir -r requirements.txt
-ENV PATH="/home/botuser/.local/bin:${PATH}"
 
 USER root
 COPY --chown=botuser:botgroup . .

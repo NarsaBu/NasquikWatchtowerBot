@@ -44,7 +44,7 @@ services:
       - TZ=Europe/Moscow
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/watchtower-bot/logs:/app/logs
+      - /opt/nasquik-watchtower-bot/logs:/app/logs
       - /usr/bin/docker:/usr/bin/docker:ro
     user: "1000:994"
 ```

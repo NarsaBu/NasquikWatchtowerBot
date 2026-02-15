@@ -23,6 +23,6 @@ class LogsHandler(BaseHandler):
         text = "Last update logs:\n"
         for i, (filename, size, timestamp) in enumerate(logs, 1):
             safe_filename = SecurityService.escape_markdown_v2(filename)
-            text += f"{i}\\. `{safe_filename}` \\({size} byte, {timestamp}\\)\n"
+            text += f"{i}. `{safe_filename}` ({size} byte, {timestamp})\n"
 
-        await update.message.reply_text(text, parse_mode='MarkdownV2')
+        await update.message.reply_text(text)

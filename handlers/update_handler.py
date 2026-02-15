@@ -22,19 +22,18 @@ class UpdateHandler(BaseHandler):
         await self.check_authorization(update)
 
         if not context.args:
-            await update.message.reply_text("Select scope: `/update qbittorrent`", parse_mode='MarkdownV2')
+            await update.message.reply_text("Select scope: `/update qbittorrent`")
             return
 
         scope = context.args[0].lower()
         if not SecurityService.validate_scope(scope, self.allowed_scopes):
             scopes_list = ", ".join([f"`{s}`" for s in self.allowed_scopes])
             await update.message.reply_text(
-                f"Unavailable scope `{scope}`\nAvailable scopes: {scopes_list}",
-                parse_mode='MarkdownV2'
+                f"Unavailable scope `{scope}`\nAvailable scopes: {scopes_list}"
             )
             return
 
-        await update.message.reply_text(f"Processing update for the scope `{scope}`...", parse_mode='MarkdownV2')
+        await update.message.reply_text(f"Processing update for the scope `{scope}`...")
 
         log_path = await self.log_repository.create_log_file(scope, is_check=False)
         chat_id = update.effective_chat.id

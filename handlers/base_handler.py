@@ -12,7 +12,6 @@ class BaseHandler:
             raise UnauthorizedError("Unknown chat")
         if update.effective_chat.id not in self.authorized_chat_ids:
             await update.message.reply_text(
-                f"Access denied\\. Your \\chat_id: `{update.effective_chat.id}`",
-                parse_mode='MarkdownV2'
+                f"Access denied. Your chat_id: {update.effective_chat.id}"
             )
             raise UnauthorizedError(f"Unauthorized access from chat_id {update.effective_chat.id}")

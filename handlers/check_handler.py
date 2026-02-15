@@ -29,19 +29,18 @@ class CheckHandler(BaseHandler):
         await self.check_authorization(update)
 
         if not context.args:
-            await update.message.reply_text("Select scope: `/check qbittorrent`", parse_mode='MarkdownV2')
+            await update.message.reply_text("Select scope: `/check qbittorrent`")
             return
 
         scope = context.args[0].lower()
         if not SecurityService.validate_scope(scope, self.allowed_scopes):
             scopes_list = ", ".join([f"`{s}`" for s in self.allowed_scopes])
             await update.message.reply_text(
-                f"Unavailable scope `{scope}`\nAvailable scopes: {scopes_list}",
-                parse_mode='MarkdownV2'
+                f"Unavailable scope `{scope}`\nAvailable scopes: {scopes_list}"
             )
             return
 
-        await update.message.reply_text(f"Starting check for the scope `{scope}`...", parse_mode='MarkdownV2')
+        await update.message.reply_text(f"Starting check for the scope `{scope}`...")
 
         log_path = await self.log_repository.create_log_file(scope, is_check=True)
         chat_id = update.effective_chat.id
@@ -68,7 +67,7 @@ class CheckHandler(BaseHandler):
             summary = '\n'.join(summary_lines[-30:])
             await self.telegram_service.send_chunked(
                 chat_id,
-                f"Check for the scope `{scope}` has been finished\\.\n"
+                f"Check for the scope `{scope}` has been finished.\n"
                 f"Лог: `{Path(log_path).name}`\n\n"
                 f"```\n{summary[-3000:]}\n```"
             )

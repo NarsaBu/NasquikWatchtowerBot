@@ -15,11 +15,11 @@ class StartHandler(BaseHandler):
         help_text = (
                 "🛡️ *Watchtower Control Bot*\n\n"
                 "Available commands:\n"
-                "• `/update <scope>` — update services in scopes\n"
-                "• `/check <scope>` — check scope for update \\(without applying\\)\n"
-                "• `/scopes` — list of available scopes\n"
-                "• `/logs` — list last 5 log files\n"
-                "• `/help` — list of available commands\n\n"
-                "Available scopes: " + ", ".join([f"`{s}`" for s in self.allowed_scopes])
+                "• /update <scope> — update services in scopes\n"
+                "• /check <scope> — check scope for update (without applying)\n"
+                "• /scopes — list of available scopes\n"
+                "• /logs — list last 5 log files\n"
+                "• /help — list of available commands\n\n"
+                "Available scopes: " + ", ".join(self.allowed_scopes)
         )
-        await update.message.reply_text(help_text, parse_mode='MarkdownV2')
+        await update.message.reply_text(help_text)

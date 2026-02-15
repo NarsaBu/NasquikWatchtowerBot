@@ -21,4 +21,4 @@ class ScopesHandler(BaseHandler):
         for scope in sorted(self.allowed_scopes):
             text += f"• `{scope}`\n"
 
-        await update.message.reply_text(text, parse_mode='MarkdownV2')
+        await update.message.reply_text(text)

@@ -63,12 +63,11 @@ class CheckHandler(BaseHandler):
                     )
                     last_sent = len(summary_lines)
 
-            # Финальный отчёт
             summary = '\n'.join(summary_lines[-30:])
             await self.telegram_service.send_chunked(
                 chat_id,
                 f"Check for the scope `{scope}` has been finished.\n"
-                f"Лог: `{Path(log_path).name}`\n\n"
+                f"Log: `{Path(log_path).name}`\n\n"
                 f"```\n{summary[-3000:]}\n```"
             )
 

@@ -13,7 +13,6 @@ class TelegramService:
             self,
             chat_id: int,
             text: str,
-            parse_mode: str = 'MarkdownV2',
             max_retries: int = 3
     ) -> None:
         safe_text = SecurityService.escape_markdown_v2(text)
@@ -24,8 +23,7 @@ class TelegramService:
                 for chunk in chunks:
                     await self.bot.send_message(
                         chat_id=chat_id,
-                        text=chunk,
-                        parse_mode=parse_mode
+                        text=chunk
                     )
                     await asyncio.sleep(0.1)  # rate-limit
                 return

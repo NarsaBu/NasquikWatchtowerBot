@@ -17,13 +17,12 @@ from handlers.logs_handler import LogsHandler
 async def main() -> None:
     try:
         config = BotConfig.from_env()
-        config.validate()
     except ValueError as e:
-        print(f"❌ Ошибка конфигурации: {e}", file=sys.stderr)
+        print(f"Configuration error: {e}", file=sys.stderr)
         sys.exit(1)
 
     logger = LoggerSetup.setup(config.log_dir)
-    logger.info("Запуск Watchtower Telegram Bot")
+    logger.info("Starting Nasquik Watchtower Telegram Bot")
 
     docker_service = DockerService(config.docker_sock, config.watchtower_image)
     log_repository = LogRepository(config.log_dir)

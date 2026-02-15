@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  watchtower-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: watchtower-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - AUTHORIZED_CHAT_IDS=${AUTHORIZED_CHAT_IDS}
+      - ALLOWED_SCOPES=${ALLOWED_SCOPES}
+      - TZ=Europe/Moscow
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./logs:/app/logs
+    networks:
+      - watchtower-net
+
+networks:
+  watchtower-net:
+    driver: bridge
